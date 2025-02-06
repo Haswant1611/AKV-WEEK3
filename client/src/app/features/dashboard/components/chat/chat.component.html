@@ -1,0 +1,92 @@
+<button class="btn btn-close position-absolute top-0 end-0 m-2" routerLink="/dashboard"></button>
+<div class="container-fluid vh-100 d-flex flex-column">
+  <div class="row flex-grow-1">
+    <!-- Sidebar -->
+    <div class="col-md-3 bg-light p-3 border-end">
+      <!-- Chat mode selector -->
+      <div class="btn-group w-100 mb-3">
+        <button class="btn btn-outline-success" [class.active]="chatMode === 'private'" (click)="chatMode = 'private'">Private Chat</button>
+        <button class="btn btn-outline-success" [class.active]="chatMode === 'group'" (click)="chatMode = 'group'">Group Chat</button>
+      </div>
+
+      <!-- Private chat users list -->
+      <div *ngIf="chatMode === 'private'">
+        <h5>Active Users</h5>
+        <ul class="list-group">
+          <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let user of activeUsers" 
+              [class.active]="selectedUser?.username === user.username"
+              (click)="selectUser(user)">
+            <span>{{ user.username }}</span>
+            <span *ngIf="user.unreadCount" class="badge bg-danger">{{ user.unreadCount }}</span>
+          </li>
+        </ul>
+        <p *ngIf="activeUsers.length === 0" class="text-muted text-center mt-3">No active users</p>
+      </div>
+
+      <!-- Group chat rooms list -->
+      <div *ngIf="chatMode === 'group'">
+        <h5>Chat Rooms</h5>
+        <div class="input-group mb-2">
+          <input type="text" class="form-control" [(ngModel)]="newRoomName" placeholder="New room name">
+          <button class="btn btn-primary" (click)="createRoom()">Create</button>
+        </div>
+        <ul class="list-group">
+          <li class="list-group-item" *ngFor="let room of rooms" [class.active]="currentRoom === room" (click)="joinRoom(room)">
+            {{ room }}
+          </li>
+        </ul>
+        <p *ngIf="rooms.length === 0" class="text-muted text-center mt-3">No rooms available</p>
+      </div>
+    </div>
+
+    <!-- Chat area -->
+    <div class="col-md-6 d-flex flex-column">
+      <!-- Chat header -->
+      <div class="d-flex justify-content-between align-items-center p-3 border-bottom bg-white">
+        <h5 *ngIf="chatMode === 'private' && selectedUser">Chat with {{ selectedUser.username }}</h5>
+        <h5 *ngIf="chatMode === 'group' && currentRoom">{{ currentRoom }}</h5>
+        <button *ngIf="chatMode === 'group' && currentRoom" class="btn btn-sm btn-outline-danger" (click)="leaveRoom()">Leave</button>
+      </div>
+
+      <!-- Messages -->
+      <div class="flex-grow-1 overflow-auto p-3 bg-light">
+        <div class="d-flex flex-column gap-2">
+          <div *ngFor="let message of messages" class="d-flex align-items-end"
+     [class.flex-row]="!isOwnMessage(message)" 
+     [class.flex-row-reverse]="isOwnMessage(message)">
+
+  <!-- Message Content -->
+  <div class="message-bubble"
+       [class.own-message]="isOwnMessage(message)" 
+       [class.other-message]="!isOwnMessage(message)">
+       
+    <!-- Sender Name (For Group Chats or Received Messages) -->
+    <div class="username" *ngIf="!isOwnMessage(message)">{{ message.sender.username }}</div>
+
+    <!-- Message Text -->
+    <div class="message-text">{{ message.text }}</div>
+
+    <!-- Timestamp -->
+    <div class="timestamp">{{ message.timestamp | date:'h:mm a' }}</div>
+  </div>
+</div>
+
+        </div>
+      </div>
+
+      <!-- Message input -->
+      <div class="p-3 border-top bg-white d-flex" *ngIf="(selectedUser && chatMode === 'private') || (currentRoom && chatMode === 'group')">
+        <input type="text" class="form-control me-2" [(ngModel)]="newMessage" placeholder="Type your message..." (keyup.enter)="sendMessage()">
+        <button class="btn btn-primary" (click)="sendMessage()">Send</button>
+      </div>
+    </div>
+
+    <!-- Room users sidebar -->
+    <div class="col-md-3 bg-light p-3 border-start" *ngIf="chatMode === 'group' && currentRoom">
+      <h5>Room Users</h5>
+      <ul class="list-group">
+        <li class="list-group-item" *ngFor="let user of roomUsers">{{ user.username }}</li>
+      </ul>
+    </div>
+  </div>
+</div>

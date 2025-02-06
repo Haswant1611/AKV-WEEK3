@@ -1,0 +1,82 @@
+<div class="card shadow-sm rounded-3">
+  <div class="card-header bg-light">
+    <div class="d-flex justify-content-between align-items-center">
+      <h5 class="mb-0 fs-4 fw-bold text-dark">File Uploads</h5>
+      <!-- <div class="d-flex gap-3">
+        <button class="btn btn-outline-primary px-4 py-2" (click)="triggerProcessing()">
+          <i class="bi bi-arrow-right-circle me-2"></i> Process Pending Files
+        </button>
+      </div> -->
+    </div>
+  </div>
+
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-striped table-hover">
+        <thead class="table-light">
+          <tr>
+            <th>File Name</th>
+            <th>Status</th>
+            <th>Total</th>
+            <th>Completed</th>
+            <th>Errors</th>
+            <th>Created</th>
+            <th>Completed</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let upload of fileUploads">
+            <td>{{ upload.file_name }}</td>
+            <td>
+              <span [class]="getStatusClass(upload.status)">
+                <i class="bi" [class]="getStatusIcon(upload.status)"></i>
+                {{ upload.status }}
+              </span>
+            </td>
+            <td>
+              <span class= "text-black">
+                {{ upload.error_count +upload.processed_count}}_REC
+              </span>
+            </td>
+            <td>
+              <span class= "text-success">
+                {{ upload.processed_count}}
+              </span>
+            </td>
+            <td>
+              <span [class]="upload.error_count > 0 ? 'text-danger' : 'text-success'">
+                {{ upload.error_count }}
+              </span>
+            </td>
+            <td>{{ formatDate(upload.created_at) }}</td>
+            <td>{{ upload.completed_at ? formatDate(upload.completed_at) : '-' }}</td>
+            <td>
+              <div class="d-flex gap-2">
+                <a *ngIf="upload.errorFileUrl"
+                   [href]="upload.errorFileUrl"
+                   class="btn btn-sm btn-outline-danger"
+                   target="_blank">
+                  <i class="bi bi-exclamation-circle me-1"></i>
+                  View Errors
+                </a>
+                <button *ngIf="upload.status === 'pending'"
+                        class="btn btn-sm btn-outline-primary"
+                        (click)="triggerProcessing()">
+                  <i class="bi bi-play-fill me-1"></i>
+                  Process
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="fileUploads.length === 0">
+            <td colspan="7" class="text-center py-4">
+              No files uploaded yet
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+

@@ -1,0 +1,87 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-gradient shadow-sm border-bottom">
+  <div class="container-fluid px-5 py-3">
+    <!-- Header Title -->
+    <div class="d-flex align-items-center">
+      <h1 class="fw-bold text-dark fs-3 mb-0" style="letter-spacing: 2px;">Haswant Inventory App</h1>
+    </div>
+
+    <!-- Profile Dropdown -->
+    <div class="ms-auto position-relative">
+      <button
+        class="fw-bold btn btn-link text-dark text-decoration-none d-flex align-items-center"
+        type="button"
+        (click)="toggleDropdown($event)"
+        style="cursor: pointer; transition: all 0.3s ease-in-out;">
+        <!-- Profile Picture or Default Icon -->
+        <div class="profile-image me-3">
+          <div *ngIf="imageLoading" class="spinner-border spinner-border-sm text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <img *ngIf="user.thumbnail"
+               [src]="user.thumbnail"
+               [alt]="user.firstname + '\'s profile picture'"
+               class="rounded-circle profile-img shadow-sm"
+               style="width: 50px; height: 50px;">
+          <i *ngIf="!user.thumbnail"
+             class="bi bi-person-circle fs-3 text-muted"></i>
+        </div>
+
+        <!-- User Info -->
+        <div>
+          <div class="fw-bold text-dark" style="font-size: 17px;">
+            {{ user.firstname.charAt(0).toUpperCase() + user.firstname.slice(1) }}
+            {{ user.lastname.charAt(0).toUpperCase() + user.lastname.slice(1) }}
+          </div>
+          <div class="text-muted" style="font-size: 14px;">{{ user.email }}</div>
+        </div>
+      </button>
+
+      <!-- Dropdown Menu -->
+      <div class="dropdown-menu position-absolute end-0 mt-3 py-2 shadow-lg" [class.show]="isDropdownOpen" style="min-width: 240px;">
+        <div class="dropdown-item-text px-3 py-2 text-muted">
+          #{{ user.username }}
+        </div>
+
+        <button class="dropdown-item px-3 py-2" (click)="openUploadModal()">
+          <i class="fw-bold bi bi-camera me-2 text-primary"></i> Update Profile Picture
+        </button>
+
+        <div class="dropdown-divider"></div>
+
+        <button class="dropdown-item text-danger px-3 py-2" (click)="logout()">
+          <i class="bi bi-box-arrow-right me-2"></i> Log out
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Upload Modal -->
+<div class="upload-modal" *ngIf="showUploadModal">
+  <div class="upload-modal-content p-5 rounded-lg shadow-lg bg-light">
+    <h5 class="fw-medium mb-3">Upload and Attach Files</h5>
+    <p class="text-muted mb-4">You can upload SVG, PNG, JPG, or GIF files (max. size: 800x400px).</p>
+
+    <!-- Upload Area -->
+    <div class="upload-area border rounded-lg p-4 text-center bg-light shadow-sm"
+         (dragover)="onDragOver($event)"
+         (dragleave)="onDragLeave($event)"
+         (drop)="onDrop($event)"
+         [class.drag-over]="isDragging"
+         style="border-style: dashed; transition: all 0.3s ease;">
+      <i class="bi bi-cloud-upload fs-2 text-muted mb-3"></i>
+      <p class="mb-3">
+        <span class="text-primary fw-bold cursor-pointer" (click)="fileInput.click()">Click to upload</span>
+        or drag and drop your files here.
+      </p>
+      <input #fileInput type="file" class="d-none" accept="image/*" (change)="onFileSelected($event)">
+    </div>
+
+    <!-- Buttons -->
+    <div class="d-flex justify-content-end mt-4">
+      <button class="btn btn-outline-secondary me-3 px-4 py-2 rounded-3" (click)="closeUploadModal()">Cancel</button>
+      <button class="btn btn-primary px-4 py-2 rounded-3" [disabled]="!selectedFile" (click)="uploadFile()">Upload</button>
+    </div>
+  </div>
+</div>
+

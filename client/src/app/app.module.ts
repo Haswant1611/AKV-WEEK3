@@ -1,0 +1,50 @@
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import { LoginComponent } from './features/auth/components/login/login.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NgToastModule } from 'ng-angular-popup';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { AuthInterceptor } from './core/interceptors/auth.interceptor';
+import { AuthGuard } from './core/guards/auth.guard';
+import { NoAuthGuard } from './core/guards/noAuth.guard';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+//import { PageNotFoundComponent } from './features/auth/page-not-found/page-not-found.component';
+import { SocketIoConfig,SocketIoModule } from 'ngx-socket-io';
+//import { ForgetPasswordComponent } from './features/auth/components/forget-password/forget-password.component';
+//import { ResetPasswordComponent } from './features/auth/components/reset-password/reset-password.component';
+
+const config:SocketIoConfig = 
+{url:'http://localhost:3000',options:{
+  transports:['websocket']
+}};
+@NgModule({
+  declarations: [
+    AppComponent,
+    LoginComponent,
+  ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    FormsModule,
+    ReactiveFormsModule,
+    NgToastModule,
+    HttpClientModule,
+    NgbModule,
+    SocketIoModule.forRoot(config)
+    
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  providers: [
+    AuthGuard,
+    NoAuthGuard,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
+  ],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }

@@ -1,0 +1,143 @@
+<div class="modal-overlay" *ngIf="showModal">
+  <div class="modal-content">
+    <h5 class="mb-3">Add product</h5>
+
+    <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+      <!-- Product Name -->
+      <div class="mb-3">
+        <label class="form-label">Product Name</label>
+        <input type="text"
+               class="form-control"
+               placeholder="Enter product name"
+               formControlName="productName">
+      </div>
+
+      <!-- Category -->
+      <div class="mb-3">
+        <label class="form-label">Category</label>
+        <select class="form-select" formControlName="category">
+          <option value="">Select category</option>
+          <option *ngFor="let category of categories" [value]="category">
+            {{category}}
+          </option>
+        </select>
+      </div>
+
+      <!-- Vendor -->
+      <div class="mb-3">
+        <label class="form-label">Vendor</label>
+        <div ngbDropdown class="d-inline-block w-100">
+          <button type="button" class="form-control text-start" id="vendorDropdown" ngbDropdownToggle>
+            {{ productForm.get('vendors')?.value?.length ? productForm.get('vendors')?.value?.join(', ') : 'Select vendors' }}
+          </button>
+          <div ngbDropdownMenu aria-labelledby="vendorDropdown" class="w-100">
+            <div *ngFor="let vendor of vendors" class="px-3 py-1">
+              <div class="form-check">
+                <input class="form-check-input"
+                       type="checkbox"
+                       [id]="'vendor-' + vendor"
+                       [checked]="isVendorSelected(vendor)"
+                       (change)="toggleVendor(vendor)">
+                <label class="form-check-label" [for]="'vendor-' + vendor">
+                  {{ vendor }}
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="invalid-feedback" *ngIf="productForm.get('vendors')?.errors?.['required'] && productForm.get('vendors')?.touched">
+          Please select at least one vendor
+        </div>
+      </div>
+
+      <!-- Quantity -->
+      <div class="mb-3">
+        <label class="form-label">Quantity in stock</label>
+        <input type="number"
+               class="form-control"
+               placeholder="Enter quantity"
+               formControlName="quantity">
+      </div>
+
+      <!-- Unit Price -->
+      <div class="mb-3">
+        <label class="form-label">Unit Price</label>
+        <input type="text"
+               class="form-control"
+               placeholder="Enter unit Price"
+               formControlName="unit_price">
+      </div>
+
+      <!-- Status -->
+      <div class="mb-3">
+        <label class="form-label">Status</label>
+        <select class="form-select" formControlName="status">
+          <option value="">Select status</option>
+          <option *ngFor="let status of statuses" [value]="status">
+            {{status}}
+          </option>
+        </select>
+      </div>
+
+      <!-- Image Upload -->
+      <div class="mb-3">
+        <label class="form-label">Upload product image</label>
+        <div class="upload-area"
+             (dragover)="onDragOver($event)"
+             (dragleave)="onDragLeave($event)"
+             (drop)="onDrop($event)"
+             [class.drag-over]="isDragging">
+          <div class="text-center">
+            <!-- Show preview if image is selected -->
+            <div *ngIf="selectedFile" class="mb-3">
+              <img [src]="previewUrl"
+                   class="img-preview mb-2"
+                   alt="Preview"
+                   style="max-width: 200px; max-height: 200px; object-fit: contain;">
+              <div>
+                <small class="text-muted">{{ selectedFile.name }}</small>
+                <button type="button"
+                        class="btn btn-link text-danger p-0 ms-2"
+                        (click)="removeSelectedFile()">
+                  <i class="bi bi-x-circle"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Upload controls -->
+            <div *ngIf="!selectedFile">
+              <i class="bi bi-cloud-upload fs-2 mb-2"></i>
+              <p class="mb-2">
+                <span class="text-purple cursor-pointer" (click)="fileInput.click()">
+                  Click to upload
+                </span>
+                or drag and drop
+              </p>
+              <small class="text-muted">SVG, PNG, JPG or GIF (max. 800x400px)</small>
+            </div>
+          </div>
+        </div>
+        <input #fileInput
+               type="file"
+               class="d-none"
+               accept="image/*"
+               (change)="onFileSelected($event)">
+      </div>
+
+      <!-- Buttons -->
+      <div class="d-flex justify-content-end mt-4">
+        <button type="button"
+                class="btn btn-light me-2"
+                (click)="handleModalClose()">
+          Cancel
+        </button>
+        <button type="submit"
+                class="btn btn-primary"
+                [disabled]="productForm.invalid || isSubmitting"
+                (click)="onSubmit()">
+          {{ isSubmitting ? 'Adding...' : 'Add' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
