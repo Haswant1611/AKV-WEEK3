@@ -298,7 +298,7 @@ const resetPassword = async (req,res) => {
   try{
       let {password} =  req.body;
       let {accessToken} = req.params;
-      console.log("AHFRHBRF");
+      //console.log("AHFRHBRF");
       const token = jwt.verify(accessToken,process.env.JWT_SECRET);
       //console.log("mytoken",token.userId);
       if (!token) return res.status(400).send({ message: "This Email has expired!" });
