@@ -9,6 +9,7 @@
  *         - lastname
  *         - email
  *         - password
+ *         - role
  *       properties:
  *         firstname:
  *           type: string
@@ -22,11 +23,16 @@
  *         password:
  *           type: string
  *           description: Password for the account
+ *         role:
+ *           type: integer
+ *           enum: [1, 2, 3]
+ *           description: Role of the user
  *       example:
  *         firstname: Johne
  *         lastname: johndoee
  *         email: john.doeee@example.com
  *         password: password12333
+ *         role: 3
  */
 
 /**

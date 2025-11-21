@@ -20,6 +20,11 @@ const signupSchema = Joi.object({
     'string.empty': 'Password is required',
     'string.min': 'Password must be at least 8 characters long',
   }),
+  role: Joi.number().valid(1, 2, 3).required().messages({
+    'any.only': 'Role must be either 1 (Admin), 2 (Manager), or 3 (User)',
+    'number.base': 'Role ID must be a number',
+    'any.required': 'Role is required',
+  }),
 });
 
 // Login validation schema

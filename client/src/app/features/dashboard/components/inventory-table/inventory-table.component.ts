@@ -6,6 +6,7 @@ import * as XLSX from 'xlsx';
 import { debounceTime, distinctUntilChanged, firstValueFrom,lastValueFrom,Subject } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 interface InventoryItem {
   product_id: number;
@@ -84,6 +85,7 @@ export class InventoryTableComponent implements OnInit, OnDestroy {
   selectedItem: InventoryItem | null = null;
   status = 'Available';
   showMoveToCartModal = false;
+  role:number=1;
 
   isAllSelected = false;
 
@@ -122,6 +124,9 @@ export class InventoryTableComponent implements OnInit, OnDestroy {
     'Blinkit',
     'Fresh Meat',
     'Swiggy',
+    'Zomato',
+    'CureFit',
+    'BigBasket',
   ];
   availableCategories: string[] = [];
 
@@ -144,11 +149,14 @@ export class InventoryTableComponent implements OnInit, OnDestroy {
 
   constructor(
     private productService: ProductService,
+    private authService: AuthService,
     private elementRef: ElementRef,
-    private toast: NgToastService,
+    private toastr: NgToastService,
     private http: HttpClient,
     private router: Router
-  ) {}
+  ) {
+    this.role=this.authService.getRole();
+  }
 
   ngOnInit(): void {
     this.loadInventoryItems();
@@ -160,7 +168,7 @@ export class InventoryTableComponent implements OnInit, OnDestroy {
 
     // search subscription with debounce
     this.searchSubscription = this.searchSubject.pipe(
-      debounceTime(300),
+      debounceTime(350),
       distinctUntilChanged() // Only emit if value is different from previous
     ).subscribe(searchValue => {
       this.searchText = searchValue;
@@ -255,7 +263,7 @@ export class InventoryTableComponent implements OnInit, OnDestroy {
       if (this.isExcelFile(file)) {
         this.selectedFile = file;
       } else {
-        this.toast.error({
+        this.toastr.error({
           detail: 'Please upload only Excel files (.xlsx, .xls)',
           summary: 'Invalid File',
           duration: 3000
@@ -271,7 +279,7 @@ export class InventoryTableComponent implements OnInit, OnDestroy {
       if (this.isExcelFile(file)) {
         this.selectedFile = file;
       } else {
-        this.toast.error({
+        this.toastr.error({
           detail: 'Please upload only Excel files (.xlsx, .xls)',
           summary: 'Invalid File',
           duration: 3000
@@ -307,7 +315,7 @@ export class InventoryTableComponent implements OnInit, OnDestroy {
 
           await lastValueFrom(this.http.put(response.uploadUrl, file, { headers }));
 
-          this.toast.success({
+          this.toastr.success({
             detail: 'File uploaded successfully!',
             summary: 'Success',
             duration: 3000
@@ -316,7 +324,7 @@ export class InventoryTableComponent implements OnInit, OnDestroy {
           this.closeUploadModal();
         } catch (error) {
           console.error('Error uploading file:', error);
-          this.toast.error({
+          this.toastr.error({
             detail: 'Failed to upload file',
             summary: 'Error',
             duration: 3000
@@ -328,7 +336,7 @@ export class InventoryTableComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('Error getting upload URL:', error);
-        this.toast.error({
+        this.toastr.error({
           detail: 'Failed to get upload URL',
           summary: 'Error',
           duration: 3000
@@ -518,7 +526,7 @@ export class InventoryTableComponent implements OnInit, OnDestroy {
     window.URL.revokeObjectURL(url);
 
     // Show success message
-    this.toast.success({
+    this.toastr.success({
       detail: `${itemsToDownload.length} items downloaded`,
       summary: 'Success',
       duration: 3000
@@ -551,7 +559,7 @@ export class InventoryTableComponent implements OnInit, OnDestroy {
     if (this.selectedItem) {
       this.productService.deleteProduct(this.selectedItem.product_id.toString()).subscribe({
         next: () => {
-          this.toast.success({
+          this.toastr.success({
             detail: 'Product deleted successfully',
             summary: 'Success',
             duration: 1000
@@ -560,7 +568,7 @@ export class InventoryTableComponent implements OnInit, OnDestroy {
           this.closeDeleteModal();
         },
         error: (error) => {
-          this.toast.error({
+          this.toastr.error({
             detail: 'Failed to delete product',
             summary: 'Error',
             duration: 2000
@@ -568,7 +576,7 @@ export class InventoryTableComponent implements OnInit, OnDestroy {
         }
       });
     } else {
-      this.toast.error({
+      this.toastr.error({
         detail: 'No product selected for deletion',
         summary: 'Error',
         duration: 2000
@@ -626,7 +634,7 @@ toggleVendorSelectionForCart(item: InventoryItem, vendor: string): void {
                 return Promise.resolve();
               });
           }
-          this.toast.error({
+          this.toastr.error({
             detail: 'Item is out of stock',
             summary: 'Error',
             duration: 3000
@@ -635,7 +643,7 @@ toggleVendorSelectionForCart(item: InventoryItem, vendor: string): void {
         })
         .catch(error => {
           console.error('Error updating quantity:', error);
-          this.toast.error({
+          this.toastr.error({
             detail: 'Failed to update quantity',
             summary: 'Error',
             duration: 3000
@@ -682,7 +690,7 @@ toggleVendorSelectionForCart(item: InventoryItem, vendor: string): void {
           })
           .catch(error => {
             console.error('Error updating quantity:', error);
-            this.toast.error({
+            this.toastr.error({
               detail: 'Failed to update quantity',
               summary: 'Error',
               duration: 3000
@@ -701,7 +709,7 @@ toggleVendorSelectionForCart(item: InventoryItem, vendor: string): void {
 
   openMoveToCartModal(): void {
     if (!this.selectedItems || this.selectedItems.length === 0) {
-      this.toast.error({
+      this.toastr.error({
         detail: 'Please select items to move to cart',
         summary: 'No Items Selected',
         duration: 3000
@@ -712,7 +720,7 @@ toggleVendorSelectionForCart(item: InventoryItem, vendor: string): void {
     // Filter out items with quantity <= 0
     const validItems = this.selectedItems.filter(item => item.quantity_in_stock > 0);
     if (validItems.length === 0) {
-      this.toast.error({
+      this.toastr.error({
         detail: 'Selected items have sold out',
         summary: 'Select available items',
         duration: 3000
@@ -808,7 +816,7 @@ toggleVendorSelectionForCart(item: InventoryItem, vendor: string): void {
                   this.productService.updateProduct(item.product_id.toString(), updatedProduct)
                     .subscribe({
                       next: () => {
-                        this.toast.success({
+                        this.toastr.success({
                           detail: 'Product updated successfully',
                           summary: 'Success',
                           duration: 3000
@@ -818,7 +826,7 @@ toggleVendorSelectionForCart(item: InventoryItem, vendor: string): void {
                         this.selectedImage = null;
                       },
                       error: (error) => {
-                        this.toast.error({
+                        this.toastr.error({
                           detail: 'Failed to update product',
                           summary: 'Error',
                           duration: 3000
@@ -828,7 +836,7 @@ toggleVendorSelectionForCart(item: InventoryItem, vendor: string): void {
                 },
                 error: (err) => {
                   console.error('Error uploading image:', err);
-                  this.toast.error({
+                  this.toastr.error({
                     detail: 'Upload failed',
                     summary: 'Error uploading image.',
                     duration: 3000
@@ -838,7 +846,7 @@ toggleVendorSelectionForCart(item: InventoryItem, vendor: string): void {
           },
           error: (err) => {
             console.error('Error getting presigned URL:', err);
-            this.toast.error({
+            this.toastr.error({
               detail: 'Upload failed',
               summary: 'Error generating pre-signed URL.',
               duration: 3000
@@ -860,7 +868,7 @@ toggleVendorSelectionForCart(item: InventoryItem, vendor: string): void {
       this.productService.updateProduct(item.product_id.toString(), updatedProduct)
         .subscribe({
           next: () => {
-            this.toast.success({
+            this.toastr.success({
               detail: 'Product updated successfully',
               summary: 'Success',
               duration: 3000
@@ -869,7 +877,7 @@ toggleVendorSelectionForCart(item: InventoryItem, vendor: string): void {
             this.editingItem = null;
           },
           error: (error) => {
-            this.toast.error({
+            this.toastr.error({
               detail: 'Failed to update product',
               summary: 'Error',
               duration: 3000
@@ -939,7 +947,7 @@ toggleVendorSelectionForCart(item: InventoryItem, vendor: string): void {
 
   moveToCart(): void {
     if (!this.selectedItemsForCart.length) {
-      this.toast.error({
+      this.toastr.error({
         detail: 'Please select items to move to cart',
         summary: 'No Items Selected',
         duration: 3000
@@ -1000,7 +1008,7 @@ toggleVendorSelectionForCart(item: InventoryItem, vendor: string): void {
         // Refresh inventory items
         this.loadInventoryItems();
 
-        this.toast.success({
+        this.toastr.success({
           detail: 'Items moved to cart successfully',
           summary: 'Success',
           duration: 3000
@@ -1008,7 +1016,7 @@ toggleVendorSelectionForCart(item: InventoryItem, vendor: string): void {
       })
       .catch(error => {
         console.error('Error updating inventory:', error);
-        this.toast.error({
+        this.toastr.error({
           detail: 'Error moving items to cart. Please try again.',
           summary: 'Error',
           duration: 3000
@@ -1130,7 +1138,7 @@ toggleVendorSelectionForCart(item: InventoryItem, vendor: string): void {
         this.loadCartItems();
         this.loadInventoryItems();
 
-        this.toast.success({
+        this.toastr.success({
           detail: 'Item removed from cart',
           summary: 'Success',
           duration: 3000
@@ -1141,7 +1149,7 @@ toggleVendorSelectionForCart(item: InventoryItem, vendor: string): void {
       })
       .catch(error => {
         console.error('Error removing item from cart:', error);
-        this.toast.error({
+        this.toastr.error({
           detail: 'Error removing item from cart. Please try again.',
           summary: 'Error',
           duration: 3000
@@ -1194,7 +1202,7 @@ toggleVendorSelectionForCart(item: InventoryItem, vendor: string): void {
     this.closeMoveToCartDeleteModal();
 
     // Show success message
-    this.toast.success({
+    this.toastr.success({
       detail: 'Item removed from selection',
       summary: 'Success',
       duration: 3000

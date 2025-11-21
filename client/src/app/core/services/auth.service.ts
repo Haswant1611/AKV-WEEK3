@@ -80,12 +80,17 @@ export class AuthService {
   logout(redirectToLogin: boolean = true): void {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('userId');
+    localStorage.removeItem('role');
     this.userId = null;
     
     if (redirectToLogin) {
       this.router.navigate(['/login']);
     }
   }
+    getRole():number{
+      //console.log(localStorage.getItem('role_id'));
+    return Number(localStorage.getItem('role_id'));
+    }
 
   getUserFromToken(): any {
     const token = this.getToken();
@@ -99,7 +104,10 @@ export class AuthService {
         console.log('Decrypted data:', decryptedData);
         
         // Parse the decrypted JSON string
+
+        
         const userData = JSON.parse(decryptedData);
+        //console.log('User data:', userData);
         return {
           id: userData.userId,
           username: userData.username

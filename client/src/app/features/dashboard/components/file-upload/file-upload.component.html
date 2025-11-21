@@ -10,11 +10,13 @@
         class="btn btn-outline-primary me-3 px-4 py-2 shadow-sm" 
         [ngClass]="{'downloading-button': isDownloading}" 
         (click)="downloadSelectedFiles()" 
-        [disabled]="!hasSelectedFiles() || isDownloading">
+        [disabled]="!hasSelectedFiles() || isDownloading"
+        *ngIf="role!==3">
         <span *ngIf="isDownloading" class="spinner-border spinner-border-sm me-2"></span>
         {{ isDownloading ? 'Downloading...' : 'Download All' }}
       </button>
-      <button class="btn btn-success px-4 py-2 shadow-sm" (click)="openUploadModal()">
+      <button class="btn btn-success px-4 py-2 shadow-sm" (click)="openUploadModal()"
+      [disabled]="role===2 || role===3">
         <i class="bi bi-upload me-2"></i>Upload
       </button>
     </div>

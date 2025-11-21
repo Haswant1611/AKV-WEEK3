@@ -9,18 +9,21 @@
         <button class="btn btn-outline fw-bolder" (click)="openMoveToCartModal()"[disabled]="selectedItems.length === 0">
           Move To Cart {{selectedItems.length > 0 ? '(' + selectedItems.length + ')' : ''}}
         </button>
+        <ng-container *ngIf="role!==3">
         <button class="btn btn-outline fw-bolder" (click)="downloadAll()" [disabled]="selectedItems.length === 0">
-          <i class="bi bi-download me-2"></i>
+          <i class="bi bi-download me-2" *ngIf="role===3"></i>
           Download All {{selectedItems.length > 0 ? '(' + selectedItems.length + ')' : ''}}
         </button>
-        <button class="btn btn-outline fw-bolder" (click)="importProducts()">
+        
+        <button class="btn btn-outline fw-bolder" (click)="importProducts()" [disabled]="role===2">
           <i class="bi bi-upload me-2"></i>
           Import
         </button>
-        <button class="btn btn-success fw-bolder" (click)="openAddProductModal()">
+        <button class="btn btn-success fw-bolder" (click)="openAddProductModal()"[disabled]="role===2">
           <i class="bi bi-plus-lg me-2"></i>
           Add Product
         </button>
+        </ng-container>
       </div>
     </div>
 
@@ -36,9 +39,11 @@
       </div>
 
       <div class="d-flex align-items-center gap-3">
+        <ng-container *ngIf="role!==3">
         <button class="btn btn-light me-2" (click)="onShowFilesClick()">
           Uploaded Files
         </button>
+        </ng-container>
         <div class="search-box">
           <i class="bi bi-search"></i>
           <input
@@ -217,7 +222,7 @@
                 {{item.unit_price}}
               </ng-template>
             </td>
-            <td class="actions-cell">
+            <td class="actions-cell" >
               <ng-container *ngIf="editingItem === item; else displayActions">
                 <div class="action-buttons">
                   <button class="btn border-0 text-success" (click)="saveEdit(item)">
@@ -228,19 +233,28 @@
                   </button>
                 </div>
               </ng-container>
-              <ng-template #displayActions>
+              <div>
+                <div>
+              <ng-template #displayActions >
+                
                 <div class="action-buttons">
                   <button class="btn btn-sm border-0 text-primary" (click)="downloadField(item)">
                     <i class="bi bi-download"></i>
                   </button>
-                  <button class="btn btn-sm border-0 text-danger" (click)="openDeleteModal(item)">
+                  <ng-container *ngIf="role!==3">
+                  <button class="btn btn-sm border-0 text-danger" (click)="openDeleteModal(item)"
+                   >
                     <i class="bi bi-trash"></i>
                   </button>
-                  <button class="btn btn-sm border-0 text-warning" (click)="startEditing(item)">
-                    <i class="bi bi-pencil"></i>
+                  <button class="btn btn-sm border-0 text-warning" (click)="startEditing(item)"
+                  >
+                    <i class="bi bi-pencil" ></i>
                   </button>
+                </ng-container>
                 </div>
-              </ng-template>
+             
+              </ng-template></div>
+            </div>
             </td>
           </tr>
         </tbody>

@@ -31,6 +31,7 @@ const authenticateToken = (req, res, next) => {
     try {
       const decryptedPayload = decrypt(decoded.data, JWT_SECRET);
       req.user = JSON.parse(decryptedPayload);
+      //console.log('req.user', req.user);
       next();
     } catch (error) {
       return res.status(403).json({ message: 'Failed to decrypt the token payload' });

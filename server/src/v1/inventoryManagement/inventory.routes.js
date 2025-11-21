@@ -2,7 +2,9 @@ const express = require('express');
 const router = express.Router();
 const inventoryController = require('./inventory.controller');
 const {authenticateToken} = require('../../middleware/jwt/jwt.middleware');
+const checkRole = require('../../middleware/checkrole/checkrole');
 
+require('./api-docs/inventoryManagement.docs');
 // Make sure controller functions exist before setting up routes
 if (!inventoryController.generatePresignedUrl || !inventoryController.addProduct || !inventoryController.getInventory || !inventoryController.getVendorCount || !inventoryController.getAllInventory || !inventoryController.deleteProduct) {
   throw new Error('Required controller functions are not properly exported');
@@ -16,10 +18,10 @@ router.use(authenticateToken);
 router.post('/presigned-url', inventoryController.generatePresignedUrl);
 
 // Generate presigned URL for product image upload
-router.post('/add-prodcut-image', inventoryController.generatePresignedUrlProductImage);
+router.post('/add-prodcut-image', checkRole([1,2]),inventoryController.generatePresignedUrlProductImage);
 
 // Add new product
-router.post('/add', inventoryController.addProduct);
+router.post('/add',checkRole([1]), inventoryController.addProduct);
 
 // Get all inventory items
 router.get('/inventory', inventoryController.getInventory);
@@ -34,7 +36,7 @@ router.get('/vendors/count', inventoryController.getVendorCount);
 router.delete('/inventory/:productId', inventoryController.deleteProduct);
 
 // Update product
-router.put('/inventory/:productId', inventoryController.updateProduct);
+router.put('/inventory/:productId', checkRole([1,2]),inventoryController.updateProduct);
 
 // Update cart product
 router.put('/cart/:productId', inventoryController.updateCartProduct);
@@ -49,9 +51,9 @@ router.get('/categories', inventoryController.getCategories);
 router.get('/getProduct/:productId', inventoryController.getProduct);
 
 // Add new routes for file processing
-router.post('/upload-file', inventoryController.uploadFileForProcessing);
+router.post('/upload-file', checkRole([1,2]),inventoryController.uploadFileForProcessing);
 
-router.get('/file-uploads', inventoryController.getFileUploads);
-router.post('/trigger-processing', inventoryController.triggerProcessing);
+router.get('/file-uploads',checkRole([1,2]), inventoryController.getFileUploads);
+router.post('/trigger-processing', checkRole([1,2]),inventoryController.triggerProcessing);
 
 module.exports = router;

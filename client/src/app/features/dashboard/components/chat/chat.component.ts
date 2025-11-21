@@ -16,7 +16,6 @@ export class ChatComponent implements OnInit, OnDestroy {
   activeUsers: UserWithNotification[] = [];
   selectedUser: UserWithNotification | null = null;
   currentUser: any;
- // notificationSound: HTMLAudioElement;
   
   // Group chat properties
   rooms: string[] = [];
@@ -31,7 +30,7 @@ export class ChatComponent implements OnInit, OnDestroy {
   ) {
     this.currentUser = this.authService.getUserFromToken();
     console.log('Initial current user:', this.currentUser);
-    //this.notificationSound = new Audio('../../../assets/sounds/notification.mp3');
+
   }
 
   ngOnInit(): void {
@@ -129,7 +128,6 @@ export class ChatComponent implements OnInit, OnDestroy {
     const user = this.activeUsers.find(u => u.username === senderUsername);
     if (user && user !== this.selectedUser) {
       user.unreadCount = (user.unreadCount || 0) + 1;
-      //this.notificationSound.play().catch(err => console.log('Error playing sound:', err));
     }
   }
 

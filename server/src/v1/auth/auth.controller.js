@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken');
 const { generateAccessToken, generateRefreshToken } = require('../../middleware/jwt/jwt.middleware');
 const { encrypt, decrypt } = require('../../constant/encrypt_decrypt');
 const { log } = require('winston');
+const { use } = require('./auth.routes');
 dotenv.config({ path: '../../.env' });
 
 
@@ -78,11 +79,13 @@ const generateUsername = async (firstname, lastname) => {
 const signup = async (req, res) => {
     // Validate request body using Joi
     const { error } = signupSchema.validate(req.body);
+    //console.log(error);
+    //console.log(req.body);
     if (error) {
       return res.status(400).json({ error: error.details[0].message });
     }
   
-    const { firstname, lastname, email, password } = req.body;
+    const { firstname, lastname, email, password,role } = req.body;
 
     try {
       // Check if the user already exists
@@ -104,6 +107,8 @@ const signup = async (req, res) => {
         username, 
         email,
         password: hashedPassword,
+        role_id: role,
+        //roles:||'user',
         status: 0, // Default status
       });
   
@@ -116,7 +121,7 @@ const signup = async (req, res) => {
 const login = async (req, res) => {
   // Validate request body using Joi
   //console.log(req.body);
-  console.log("asta")
+  //console.log("asta")
   const { error } = loginSchema.validate(req.body);
   if (error) {
     return res.status(400).json({ error: error.details[0].message });
@@ -137,14 +142,14 @@ const login = async (req, res) => {
       return res.status(400).json({ error: 'Invalid email or password' });
     }
    
-    const accessToken = generateAccessToken({ userId: user.id, username: user.username });
-    const refreshToken = generateRefreshToken({ userId: user.id, username: user.username });
+    const accessToken = generateAccessToken({ userId: user.id, username: user.username,role: user.role_id });
+    const refreshToken = generateRefreshToken({ userId: user.id, username: user.username,role:user.role_id });
 
     // Encrypt refresh token before storing
     const encryptedRefreshToken = encrypt(refreshToken, process.env.REFRESH_TOKEN_SECRET);
 
     // Store encrypted refresh token in database
-    console.log(user);
+    console.log("logged",user);
     await knex('users')
       .where({ id: user.id })
       .update({ refresh_token: encryptedRefreshToken });
@@ -152,6 +157,8 @@ const login = async (req, res) => {
     res.status(200).json({ 
       message: 'Login successful.', 
       accessToken,
+      role: user.role_id,
+      //role: user.role_id,
       userId: user.id
     });
   } catch (err) {
@@ -195,6 +202,7 @@ const refreshAccessToken = async (req, res) => {
       const accessToken = generateAccessToken({ 
         userId: userId, 
         username: user.username 
+        
       });
 
       // Generate new refresh token

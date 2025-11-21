@@ -4,6 +4,7 @@ import { FileService } from 'src/app/core/services/file.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { firstValueFrom } from 'rxjs';
 import { SecurityContext } from '@angular/core';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 interface UploadedFile {
   name: string;
@@ -29,12 +30,16 @@ export class FileUploadComponent implements OnInit {
   isDownloading = false;
   showPreviewModal = false;
   previewFile: UploadedFile | null = null;
+  role:number=1;
 
   constructor(
     private fileService: FileService,
+    private authService: AuthService,
     private toast: NgToastService,
     private sanitizer: DomSanitizer
-  ) {}
+  ) {
+    this.role=this.authService.getRole();
+  }
 
   ngOnInit() {
     this.loadFiles();

@@ -16,6 +16,11 @@ export class SignupComponent implements OnInit,CanComponentDeactivate {
 
   signupForm !: FormGroup;
   isSubmitted = false;
+  roles=[
+    { id: 1, name: 'Admin' },
+    { id: 2, name: 'Manager' },
+    { id: 3, name: 'User' }
+  ]
 
   constructor(private toast: NgToastService, private router: Router, private authService:AuthService) { }
 
@@ -24,7 +29,8 @@ export class SignupComponent implements OnInit,CanComponentDeactivate {
       firstname: new FormControl('', [Validators.required]),
       lastname: new FormControl('', [Validators.required]),
       email: new FormControl('', [Validators.required, Validators.email]),
-      password: new FormControl('', [Validators.required, Validators.minLength(8)])
+      password: new FormControl('', [Validators.required, Validators.minLength(8)]),
+      role: new FormControl('', [Validators.required])
     });
 
     this.loadFormState();
@@ -47,6 +53,9 @@ export class SignupComponent implements OnInit,CanComponentDeactivate {
 
   get password(): FormControl {
     return this.signupForm.get('password') as FormControl;
+  }
+  get role(): FormControl {
+    return this.signupForm.get('role') as FormControl;
   }
 
   saveFormState(): void {
@@ -75,6 +84,8 @@ export class SignupComponent implements OnInit,CanComponentDeactivate {
     }
 
     const userData = this.signupForm.value;
+    console.log(userData);
+    
 
     this.authService.signup(userData).subscribe({
       next: (response: any) => {

@@ -26,7 +26,7 @@ function decryptData(encryptedData) {
 function decryptMiddleware(req, res, next) {
     try {
       if (req.body && req.body.encryptedPayload) {
-        console.log('Encrypted Payload (Backend):', req.body.encryptedPayload);
+        //console.log('Encrypted Payload (Backend):', req.body.encryptedPayload);
  
         // Validate if payload is a non-empty string
         if (typeof req.body.encryptedPayload !== 'string' || !req.body.encryptedPayload.trim()) {
@@ -35,7 +35,7 @@ function decryptMiddleware(req, res, next) {
  
         const decryptedData = decryptData(req.body.encryptedPayload);
         req.body = JSON.parse(decryptedData); // Replace req.body with decrypted data
-        console.log('Decrypted Payload (Backend):', req.body);
+        //console.log('Decrypted Payload (Backend):', req.body);
       }
       next();
     } catch (error) {
